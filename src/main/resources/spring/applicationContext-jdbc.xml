@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"	   
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xmlns:aop="http://www.springframework.org/schema/aop"  
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.0.xsd				
+				http://www.springframework.org/schema/tx
+     	   		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd	
+     	   		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+     	   		http://www.springframework.org/schema/aop  
+                http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     	   		">
+  
+  
+ 	 <bean id="jdbcConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations" value="classpath:context/project.properties" />
+	</bean>
+  
+    <!--  配置员工查询mysql数据源 -->
+    <bean id="partnersmysqlDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${partnersmysql.jdbc.driverClassName}"/>
+        <property name="url" value="${partnersmysql.jdbc.url}"/>
+        <property name="username" value="${partnersmysql.jdbc.username}"/>
+        <property name="password" value="${partnersmysql.jdbc.password}"/>
+        <property name="maxIdle" value="${partnersmysql.jdbc.maxIdle}"/>
+        <property name="minIdle" value="${partnersmysql.jdbc.minIdle}"/>
+        <property name="maxWaitMillis" value="${partnersmysql.jdbc.maxWaitMillis}"/>
+        <property name="defaultAutoCommit" value="${partnersmysql.jdbc.defaultAutoCommit}"/>
+    </bean>
+    
+    
+    
+    <!--  配置体检mysql数据源 -->
+    <bean id="physicalmysqlDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${physicalmysql.jdbc.driverClassName}"/>
+        <property name="url" value="${physicalmysql.jdbc.url}"/>
+        <property name="username" value="${physicalmysql.jdbc.username}"/>
+        <property name="password" value="${physicalmysql.jdbc.password}"/>
+        <property name="maxIdle" value="${physicalmysql.jdbc.maxIdle}"/>
+        <property name="minIdle" value="${physicalmysql.jdbc.minIdle}"/>
+        <property name="maxWaitMillis" value="${physicalmysql.jdbc.maxWaitMillis}"/>
+        <property name="defaultAutoCommit" value="${physicalmysql.jdbc.defaultAutoCommit}"/>
+    </bean>
+    
+     <bean id="dataSource" class="com.ai.duxiefenli.DynamicDataSource">
+        <property name="targetDataSources">  
+              <map key-type="java.lang.String">  
+                  <!-- write -->
+                 <entry key="master" value-ref="partnersmysqlDataSource"/>  
+                 <!-- read -->
+                 <entry key="slave" value-ref="physicalmysqlDataSource"/>  
+              </map>  
+              
+        </property>  
+        <property name="defaultTargetDataSource" ref="partnersmysqlDataSource"/>  
+    </bean>
+    
+    
+    <!-- 配置SqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:duxiefl/mybatis-config.xml" />
+    </bean>
+    
+    <!-- 配置数据库注解aop -->
+    
+    <bean id="manyDataSourceAspect" class="com.ai.duxiefenli.DataSourceAspect" />
+    <aop:config>
+       <aop:pointcut id="tx" expression="execution(* com.ai.duxiefenli.DuxieTest.*(..))"/>
+        <aop:aspect id="c" ref="manyDataSourceAspect">
+           
+            <aop:before pointcut-ref="tx" method="before"/>
+        </aop:aspect>
+    </aop:config>
+    <!-- 配置数据库注解aop -->
+    
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+   
+</beans>

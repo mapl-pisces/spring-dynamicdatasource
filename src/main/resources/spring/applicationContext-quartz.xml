@@ -1,0 +1,136 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd ">
+
+<!-- <bean id="bizObject" class=" com.ai.aisse.core.service.impl.TestSrv" /> -->
+	
+	<bean name="testQuartzJob" class="com.ai.aisse.core.service.impl.IEmployeeinfoSvImpl" />  
+    <bean id="testQuartzJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject">  
+            <ref bean="testQuartzJob" />  
+        </property>  
+        <property name="targetMethod">  
+            <value>employeeinfotime</value>  
+        </property>  
+    </bean>  
+    <bean id="testQuartzJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail">  
+            <ref bean="testQuartzJobDetail" />  
+        </property>  
+        <property name="cronExpression">  
+            <value>0 0/2 * * * ?</value>  
+        </property>  
+    </bean>
+    
+    
+     <bean id="refreshMedEmployeeInfotask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject">  
+            <ref bean="testQuartzJob" />  
+        </property>  
+        <property name="targetMethod">  
+            <value>refreshMedEmployeeInfo</value>  
+        </property>  
+    </bean>  
+    <bean id="refreshMedEmployeeInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail">  
+            <ref bean="refreshMedEmployeeInfotask" />  
+        </property>  
+        <property name="cronExpression">  
+            <value>0 0/15 * * * ?</value>  
+        </property>  
+    </bean>
+    
+    
+    
+    
+    
+     <bean id="increaseEmployeeInfo" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject">  
+            <ref bean="testQuartzJob" />  
+        </property>  
+        <property name="targetMethod">  
+            <value>increaseEmployeeInfo</value>  
+        </property>  
+    </bean>  
+    <bean id="increaseEmployeeInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail">  
+            <ref bean="increaseEmployeeInfo" />  
+        </property>  
+        <property name="cronExpression">  
+            <value>0 0/5 * * * ?</value>  
+        </property>  
+    </bean>
+    
+    
+    <bean id="decreaseEmployeeInfo" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject">  
+            <ref bean="testQuartzJob" />  
+        </property>  
+        <property name="targetMethod">  
+            <value>decreaseEmployeeInfo</value>  
+        </property>  
+    </bean>  
+    <bean id="decreaseEmployeeInfoTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail">  
+            <ref bean="decreaseEmployeeInfo" />  
+        </property>  
+        <property name="cronExpression">  
+            <value>0 0/5 * * * ?</value>  
+        </property>  
+    </bean>
+    
+    
+    <bean id="refreshEmployeeinfoByEmployeeNo" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+        <property name="targetObject">  
+            <ref bean="testQuartzJob" />  
+        </property>  
+        <property name="targetMethod">  
+            <value>refreshEmployeeinfoByEmployeeNo</value>  
+        </property>  
+    </bean>  
+    <bean id="refreshEmployeeinfoByEmployeeNoTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+        <property name="jobDetail">  
+            <ref bean="refreshEmployeeinfoByEmployeeNo" />  
+        </property>  
+        <property name="cronExpression">  
+            <value>0 0/5 * * * ?</value>  
+        </property>  
+    </bean>
+    
+    
+    
+    
+    
+    
+      
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" autowire="no">  
+        <property name="triggers">  
+            <list>  
+             <!-- <ref local="refreshMedEmployeeInfoTrigger" />   -->
+               <!-- <ref local="decreaseEmployeeInfoTrigger" />  -->
+               
+                <!-- <ref local="increaseEmployeeInfoTrigger" />  -->
+                 <ref local="refreshEmployeeinfoByEmployeeNoTrigger" />  
+                
+                
+               
+            </list>  
+        </property>  
+    </bean>  
+	
+	
+	
+	
+	
+</beans>
